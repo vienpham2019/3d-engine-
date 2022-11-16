@@ -49,23 +49,25 @@ document.getElementById('fileInput').onchange = function (params) {
             .map((nt) => [parseFloat(nt) * -1])
         );
       } else if (text.indexOf('f') === 0) {
-        text
+        let face = text
+          .trim()
           .replace('f ', '')
           .split(' ')
-          .map((n) => faces.push(n.split('/').map((m) => parseInt(m) - 1)));
+          .map((f) => parseInt(f.split('/')[0]) - 1);
+        faces.push(face);
       }
     }
 
-    let rect = new Rectangle(100, 100, c, vertices, faces);
+    let rect = new Rectangle(50, 50, c, vertices, faces);
     function animate() {
       //   await sleep(delay);
       window.requestAnimationFrame(animate);
       c.fillStyle = 'black';
       c.fillRect(0, 0, canvas.width, canvas.height);
 
-      //   rect.set_angle_X(0.005);
-      rect.set_angle_Y(0.005);
-      //   rect.set_angle_Z(0.005);
+      rect.set_angle_X(0.008);
+      rect.set_angle_Y(0.008);
+      rect.set_angle_Z(0.008);
       rect.draw();
     }
 

@@ -81,20 +81,28 @@ export class Shape {
   drawFaces(faces, matrixArray) {
     var centerX = canvas.width / 2;
     var centerY = canvas.height / 2;
+
+    // [
+    //     [1,3,2]
+    // ]
     for (let i = 0; i < faces.length; i++) {
-      let [x, y] = faces[i];
-      this.context.beginPath();
-      this.context.moveTo(
-        matrixArray[x][0] + centerX,
-        matrixArray[x][1] + centerY
-      );
-      this.context.lineTo(
-        matrixArray[y][0] + centerX,
-        matrixArray[y][1] + centerY
-      );
-      this.context.strokeStyle = 'red';
-      this.context.closePath();
-      this.context.stroke();
+      for (let j = 0; j < faces[i].length; j++) {
+        let vertice;
+        if (j === faces[i].length - 1) vertice = [faces[i][j], faces[i][0]];
+        else vertice = [faces[i][j], faces[i][j + 1]];
+        this.context.beginPath();
+        this.context.moveTo(
+          matrixArray[vertice[0]][0] + centerX,
+          matrixArray[vertice[0]][1] + centerY
+        );
+        this.context.lineTo(
+          matrixArray[vertice[1]][0] + centerX,
+          matrixArray[vertice[1]][1] + centerY
+        );
+        this.context.strokeStyle = 'red';
+        this.context.closePath();
+        this.context.stroke();
+      }
     }
   }
 
