@@ -6,13 +6,19 @@ export class Shape {
   angle_Z = 0;
   context;
 
+  center = [];
+
   rotationMatrixX;
 
   rotationMatrixY;
   rotationMatrixZ;
 
+  vertices = [];
+  faces = [];
+
   constructor(context) {
     this.context = context;
+    this.center = [canvas.width / 2, canvas.height / 2];
     this.rotationMatrixX = [
       [1, 0, 0],
       [0, Math.cos(0), -Math.sin(0)],
@@ -59,51 +65,113 @@ export class Shape {
     ];
   }
 
-  multiply_m(a, b) {
-    let product = [];
-    //   console.log('mactch');
-    for (let i = 0; i < a.length; i++) {
-      product[i] = [];
-      // a rows
-      for (let j = 0; j < b[0].length; j++) {
-        product[i][j] = 0;
-        // number of element
-        for (let k = 0; k < b.length; k++) {
-          // b colums
-          product[i][j] += a[i][k] * b[k][j];
-        }
-      }
-    }
-
-    return product;
-  }
-
-  drawFaces(faces, matrixArray) {
-    var centerX = canvas.width / 2;
-    var centerY = canvas.height / 2;
+  drawFaces(matrixArray) {
+    // var centerX = canvas.width / 2;
+    // var centerY = canvas.height / 2;
 
     // [
     //     [1,3,2]
     // ]
-    for (let i = 0; i < faces.length; i++) {
-      for (let j = 0; j < faces[i].length; j++) {
+    for (let i = 0; i < this.faces.length; i++) {
+      if (this.faces[i].length < 3) continue;
+      for (let j = 0; j < this.faces[i].length; j++) {
         let vertice;
-        if (j === faces[i].length - 1) vertice = [faces[i][j], faces[i][0]];
-        else vertice = [faces[i][j], faces[i][j + 1]];
+        if (j === this.faces[i].length - 1)
+          vertice = [this.faces[i][j], this.faces[i][0]];
+        else vertice = [this.faces[i][j], this.faces[i][j + 1]];
+        // if (
+        //   matrixArray[vertice[0]][0] < canvas.width &&
+        //   matrixArray[vertice[0]][1] < canvas.height &&
+        //   matrixArray[vertice[1]][0] < canvas.width &&
+        //   matrixArray[vertice[1]][1] < canvas.height
+        // ) {
         this.context.beginPath();
         this.context.moveTo(
-          matrixArray[vertice[0]][0] + centerX,
-          matrixArray[vertice[0]][1] + centerY
+          matrixArray[vertice[0]][0] + this.center[0],
+          matrixArray[vertice[0]][1] + this.center[1]
         );
         this.context.lineTo(
-          matrixArray[vertice[1]][0] + centerX,
-          matrixArray[vertice[1]][1] + centerY
+          matrixArray[vertice[1]][0] + this.center[0],
+          matrixArray[vertice[1]][1] + this.center[1]
         );
-        this.context.strokeStyle = 'red';
+        this.context.strokeStyle = '#f1c232';
         this.context.closePath();
         this.context.stroke();
+        // }
       }
     }
+  }
+
+  rotation(a) {
+    let [x, y, z] = a;
+    /// over X
+    let newXX =
+      x * this.rotationMatrixX[0][0] +
+      y * this.rotationMatrixX[0][1] +
+      z * this.rotationMatrixX[0][2];
+
+    let newXY =
+      x * this.rotationMatrixX[1][0] +
+      y * this.rotationMatrixX[1][1] +
+      z * this.rotationMatrixX[1][2];
+
+    let newXZ =
+      x * this.rotationMatrixX[2][0] +
+      y * this.rotationMatrixX[2][1] +
+      z * this.rotationMatrixX[2][2];
+
+    /// over Y
+    let newYX =
+      newXX * this.rotationMatrixY[0][0] +
+      newXY * this.rotationMatrixY[0][1] +
+      newXZ * this.rotationMatrixY[0][2];
+
+    let newYY =
+      newXX * this.rotationMatrixY[1][0] +
+      newXY * this.rotationMatrixY[1][1] +
+      newXZ * this.rotationMatrixY[1][2];
+
+    let newYZ =
+      newXX * this.rotationMatrixY[2][0] +
+      newXY * this.rotationMatrixY[2][1] +
+      newXZ * this.rotationMatrixY[2][2];
+
+    /// over Z
+    let newZX =
+      newYX * this.rotationMatrixZ[0][0] +
+      newYY * this.rotationMatrixZ[0][1] +
+      newYZ * this.rotationMatrixZ[0][2];
+
+    let newZY =
+      newYX * this.rotationMatrixZ[1][0] +
+      newYY * this.rotationMatrixZ[1][1] +
+      newYZ * this.rotationMatrixZ[1][2];
+
+    let newZZ =
+      newYX * this.rotationMatrixZ[2][0] +
+      newYY * this.rotationMatrixZ[2][1] +
+      newYZ * this.rotationMatrixZ[2][2];
+
+    return [newZX, newZY, newZZ];
+  }
+
+  static get2DCordinate(a) {
+    let projection_matrix = [
+      [1, 0, 0],
+      [0, 1, 0],
+    ];
+
+    let [x, y, z] = a;
+    let newX =
+      x * projection_matrix[0][0] +
+      y * projection_matrix[0][1] +
+      z * projection_matrix[0][2];
+    let newY =
+      x * projection_matrix[1][0] +
+      y * projection_matrix[1][1] +
+      z * projection_matrix[1][2];
+
+    return [newX, newY];
   }
 
   drawPoint(x, y, label, color = 'white', size = 1) {
@@ -114,14 +182,14 @@ export class Shape {
       size = 5;
     }
 
-    var radius = 0.5 * size;
+    let radius = 0.5 * size;
 
     // to increase smoothing for numbers with decimal part
-    var centerX = canvas.width / 2;
-    var centerY = canvas.height / 2;
+    // let centerX = canvas.width / 2;
+    // let centerY = canvas.height / 2;
 
-    var pointX = Math.round(x - radius) + centerX;
-    var pointY = Math.round(y - radius) + centerY;
+    let pointX = Math.round(x - radius) + this.center[0];
+    let pointY = Math.round(y - radius) + this.center[1];
 
     this.context.beginPath();
     this.context.fillStyle = color;
@@ -129,8 +197,8 @@ export class Shape {
     this.context.fill();
 
     if (label) {
-      var textX = pointX;
-      var textY = Math.round(pointY - size - 3);
+      let textX = pointX;
+      let textY = Math.round(pointY - size - 3);
 
       this.context.font = 'Italic 14px Arial';
       this.context.fillStyle = color;

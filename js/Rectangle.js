@@ -1,39 +1,51 @@
 import { Shape } from './Shape.js';
-import { canvas } from './main.js';
 export class Rectangle extends Shape {
-  projection_matrix = [
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 0],
-  ];
-
-  vertices;
-  faces;
   width;
   height;
 
-  constructor(width, height, context, vertices, faces) {
+  constructor(width, height, context) {
     super(context);
     this.width = width;
     this.height = height;
-    this.vertices = vertices;
-    this.faces = faces;
+    this.init();
+  }
+
+  init() {
+    this.vertices = [
+      [-1, -1, -1],
+      [1, -1, -1],
+      [1, 1, -1],
+      [-1, 1, -1],
+      [-1, -1, 1],
+      [1, -1, 1],
+      [1, 1, 1],
+      [-1, 1, 1],
+    ];
+    this.faces = [
+      [0, 1, 2, 3],
+      [4, 5, 6, 7],
+      [0, 4, 7, 3],
+      [1, 5, 6, 2],
+    ];
+  }
+
+  setSize(s) {
+    this.width += s;
+    this.height += s;
   }
 
   draw() {
     for (let i = 0; i < this.vertices.length; i++) {
-      let rotate_x = this.multiply_m(this.rotationMatrixX, this.vertices[i]);
-      let rotate_y = this.multiply_m(this.rotationMatrixY, rotate_x);
-      let rotate_z = this.multiply_m(this.rotationMatrixZ, rotate_y);
+      //   if (x * this.width < canvas.width && y * this.height < canvas.height) {
+      let rotate = this.rotation(this.vertices[i]);
 
-      let points2d = this.multiply_m(this.projection_matrix, rotate_z);
-      this.points[i] = [
-        points2d[0][0] * this.width,
-        points2d[1][0] * this.height,
-      ];
+      let points2d = Shape.get2DCordinate(rotate);
+
+      this.points[i] = [points2d[0] * this.width, points2d[1] * this.height];
       this.drawPoint(this.points[i][0], this.points[i][1]);
+      //   }
     }
 
-    this.drawFaces(this.faces, this.points);
+    this.drawFaces(this.points);
   }
 }
