@@ -65,46 +65,64 @@ export class Shape {
     ];
   }
 
-  drawFaces(matrixArray) {
+  drawFaces(matrixArray, rotate_vertices) {
     for (let i = 0; i < this.faces.length; i++) {
       let close_faces = [...this.faces[i], this.faces[i][0]];
-      if (this.faces[i].length < 3) continue;
-
-      this.context.beginPath();
-      this.context.moveTo(
-        matrixArray[close_faces[0]][0] + this.center[0],
-        matrixArray[close_faces[0]][1] + this.center[1]
-      );
-      for (let j = 0; j < close_faces.length; j++) {
-        let vertice;
-        if (j === close_faces.length - 1)
-          vertice = [close_faces[j], close_faces[0]];
-        else vertice = [close_faces[j], close_faces[j + 1]];
-
-        this.context.lineTo(
-          matrixArray[vertice[1]][0] + this.center[0],
-          matrixArray[vertice[1]][1] + this.center[1]
+      if (
+        // this.faces[i].length < 3 ||
+        this.cross_product(this.faces[i], rotate_vertices).z < 0
+      ) {
+        this.context.beginPath();
+        this.context.moveTo(
+          matrixArray[close_faces[0]][0] + this.center[0],
+          matrixArray[close_faces[0]][1] + this.center[1]
         );
-        this.context.strokeStyle = '#f1c232';
-        this.context.stroke();
-        // this.context.fillStyle = '#9498A6';
-        // this.context.fill();
+        for (let j = 0; j < close_faces.length; j++) {
+          let vertice;
+          if (j === close_faces.length - 1)
+            vertice = [close_faces[j], close_faces[0]];
+          else vertice = [close_faces[j], close_faces[j + 1]];
+
+          this.context.lineTo(
+            matrixArray[vertice[1]][0] + this.center[0],
+            matrixArray[vertice[1]][1] + this.center[1]
+          );
+          this.context.strokeStyle = '#f1c232';
+          this.context.stroke();
+          // this.context.fillStyle = '#9498A6';
+          // this.context.fill();
+        }
       }
     }
   }
 
-  calculate_faces_area(triangleFaceIndexs, matrixArray) {
-    // x1 * y2 - x2 * y1
-    let area = 0;
+  cross_product(faceIndexs, rotate_vertices) {
+    let [p1i, p2i, p3i] = faceIndexs;
+    let line1 = { x: 0, y: 0, z: 0 };
+    let line2 = { x: 0, y: 0, z: 0 };
+    let normal = { x: 0, y: 0, z: 0 };
 
-    for (let i = 0; i < triangleFaceIndexs.length - 1; i++) {
-      let [x1, y1] = matrixArray[i];
-      let [x2, y2] = matrixArray[i + 1];
-      area += x1 * y2 - x2 * y1;
-    }
+    line1.x = rotate_vertices[p2i][0] - rotate_vertices[p1i][0];
+    line1.y = rotate_vertices[p2i][1] - rotate_vertices[p1i][1];
+    line1.z = rotate_vertices[p2i][2] - rotate_vertices[p1i][2];
 
-    // console.log(area);
-    return area;
+    line2.x = rotate_vertices[p3i][0] - rotate_vertices[p1i][0];
+    line2.y = rotate_vertices[p3i][1] - rotate_vertices[p1i][1];
+    line2.z = rotate_vertices[p3i][2] - rotate_vertices[p1i][2];
+
+    normal.x = line1.y * line2.z - line1.z * line2.y;
+    normal.y = line1.z * line2.x - line1.x * line2.z;
+    normal.z = line1.x * line2.y - line1.y * line2.x;
+
+    let l = Math.sqrt(
+      normal.x * normal.x + normal.y * normal.y + normal.z * normal.z
+    );
+
+    normal.x /= l;
+    normal.y /= l;
+    normal.z /= l;
+
+    return normal;
   }
 
   rotation(a) {

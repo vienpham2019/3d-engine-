@@ -11,7 +11,8 @@ const delay = 200;
 
 c.fillRect(0, 0, canvas.width, canvas.height);
 
-let obj_3d = new Triangle(200, c, [70, 90, 20]);
+let obj_3d = new Rectangle(200, 200, c);
+// let obj_3d = new Triangle(200, c, [70, 90, 20]);
 
 // matix 3d to 2d
 // [1 0 0]    [x]
