@@ -66,40 +66,45 @@ export class Shape {
   }
 
   drawFaces(matrixArray) {
-    // var centerX = canvas.width / 2;
-    // var centerY = canvas.height / 2;
-
-    // [
-    //     [1,3,2]
-    // ]
     for (let i = 0; i < this.faces.length; i++) {
+      let close_faces = [...this.faces[i], this.faces[i][0]];
       if (this.faces[i].length < 3) continue;
-      for (let j = 0; j < this.faces[i].length; j++) {
+
+      this.context.beginPath();
+      this.context.moveTo(
+        matrixArray[close_faces[0]][0] + this.center[0],
+        matrixArray[close_faces[0]][1] + this.center[1]
+      );
+      for (let j = 0; j < close_faces.length; j++) {
         let vertice;
-        if (j === this.faces[i].length - 1)
-          vertice = [this.faces[i][j], this.faces[i][0]];
-        else vertice = [this.faces[i][j], this.faces[i][j + 1]];
-        // if (
-        //   matrixArray[vertice[0]][0] < canvas.width &&
-        //   matrixArray[vertice[0]][1] < canvas.height &&
-        //   matrixArray[vertice[1]][0] < canvas.width &&
-        //   matrixArray[vertice[1]][1] < canvas.height
-        // ) {
-        this.context.beginPath();
-        this.context.moveTo(
-          matrixArray[vertice[0]][0] + this.center[0],
-          matrixArray[vertice[0]][1] + this.center[1]
-        );
+        if (j === close_faces.length - 1)
+          vertice = [close_faces[j], close_faces[0]];
+        else vertice = [close_faces[j], close_faces[j + 1]];
+
         this.context.lineTo(
           matrixArray[vertice[1]][0] + this.center[0],
           matrixArray[vertice[1]][1] + this.center[1]
         );
         this.context.strokeStyle = '#f1c232';
-        this.context.closePath();
         this.context.stroke();
-        // }
+        // this.context.fillStyle = '#9498A6';
+        // this.context.fill();
       }
     }
+  }
+
+  calculate_faces_area(triangleFaceIndexs, matrixArray) {
+    // x1 * y2 - x2 * y1
+    let area = 0;
+
+    for (let i = 0; i < triangleFaceIndexs.length - 1; i++) {
+      let [x1, y1] = matrixArray[i];
+      let [x2, y2] = matrixArray[i + 1];
+      area += x1 * y2 - x2 * y1;
+    }
+
+    // console.log(area);
+    return area;
   }
 
   rotation(a) {
