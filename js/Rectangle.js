@@ -1,14 +1,12 @@
 import { Shape } from './Shape.js';
+import { canvas, c } from './main.js';
 export class Rectangle extends Shape {
-  width;
-  height;
-
-  constructor(width, height, context) {
-    super(context);
-    this.width = width;
-    this.height = height;
-    this.init();
-  }
+  // constructor(width, height, context) {
+  //   super(context);
+  //   this.width = width;
+  //   this.height = height;
+  //   this.init();
+  // }
 
   init() {
     this.vertices = [
@@ -44,29 +42,29 @@ export class Rectangle extends Shape {
     ];
   }
 
-  setSize(s) {
-    this.width += s;
-    this.height += s;
-  }
+  // setSize(s) {
+  //   this.width += s;
+  //   this.height += s;
+  // }
 
-  draw() {
-    let rotate_vertices = [];
-    for (let i = 0; i < this.vertices.length; i++) {
-      //   if (x * this.width < canvas.width && y * this.height < canvas.height) {
-      let rotate = this.rotation(this.vertices[i]);
-      rotate_vertices[i] = [
-        rotate[0] * this.width,
-        rotate[1] * this.width,
-        rotate[2] * this.width,
-      ];
+  // draw() {
+  //   let rotate_vertices = [];
+  //   for (let i = 0; i < this.vertices.length; i++) {
+  //     //   if (x * this.width < canvas.width && y * this.height < canvas.height) {
+  //     let rotate = this.rotation(this.vertices[i]);
+  //     rotate_vertices[i] = [
+  //       rotate[0] * this.width,
+  //       rotate[1] * this.width,
+  //       rotate[2] * this.width,
+  //     ];
 
-      let points2d = Shape.get2DCordinate(rotate);
+  //     let points2d = Shape.get2DCordinate(rotate);
 
-      this.points[i] = [points2d[0] * this.width, points2d[1] * this.height];
-      this.drawPoint(this.points[i][0], this.points[i][1], i + 1);
-      //   }
-    }
+  //     this.points[i] = [points2d[0] * this.width, points2d[1] * this.height];
+  //     // this.drawPoint(this.points[i][0], this.points[i][1], i + 1);
+  //     //   }
+  //   }
 
-    this.drawFaces(this.points, rotate_vertices);
-  }
+  //   this.drawFaces(this.points, rotate_vertices);
+  // }
 }

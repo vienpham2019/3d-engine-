@@ -5,6 +5,7 @@ export class Shape {
   angle_Y = 0;
   angle_Z = 0;
   context;
+  view_camera = { x: 0, y: 0, z: 0 };
 
   center = [];
 
@@ -66,11 +67,15 @@ export class Shape {
   }
 
   drawFaces(matrixArray, rotate_vertices) {
+    this.drawPoint(this.view_camera.x, this.view_camera.y, 'camera');
     for (let i = 0; i < this.faces.length; i++) {
       let close_faces = [...this.faces[i], this.faces[i][0]];
       if (
         // this.faces[i].length < 3 ||
-        this.cross_product(this.faces[i], rotate_vertices).z < 0
+        this.dot_product(
+          this.cross_product(this.faces[i], rotate_vertices),
+          rotate_vertices[this.faces[i][0]]
+        ) < 0
       ) {
         this.context.beginPath();
         this.context.moveTo(
@@ -94,6 +99,14 @@ export class Shape {
         }
       }
     }
+  }
+
+  dot_product(normal, triangle_vertice) {
+    return (
+      normal.x * (triangle_vertice[0] - this.view_camera.x) +
+      normal.y * (triangle_vertice[1] - this.view_camera.y) +
+      normal.z * (triangle_vertice[2] - this.view_camera.z)
+    );
   }
 
   cross_product(faceIndexs, rotate_vertices) {
@@ -211,8 +224,11 @@ export class Shape {
     // let centerX = canvas.width / 2;
     // let centerY = canvas.height / 2;
 
-    let pointX = Math.round(x - radius) + this.center[0];
-    let pointY = Math.round(y - radius) + this.center[1];
+    // let pointX = Math.round(x - radius) + this.center[0];
+    // let pointY = Math.round(y - radius) + this.center[1];
+
+    let pointX = Math.round(x - radius);
+    let pointY = Math.round(y - radius);
 
     this.context.beginPath();
     this.context.fillStyle = color;

@@ -1,6 +1,7 @@
 import { OBJ3D } from './OBJ3D.js';
-import { Rectangle } from './Rectangle.js';
+import { Rectangle2 } from './Rectangle2.js';
 import { Triangle } from './Triangle.js';
+
 export const canvas = document.querySelector('#canvas');
 export const c = canvas.getContext('2d');
 
@@ -11,7 +12,7 @@ const delay = 200;
 
 c.fillRect(0, 0, canvas.width, canvas.height);
 
-let obj_3d = new Rectangle(200, 200, c);
+let obj_3d = new Rectangle2();
 // let obj_3d = new Triangle(200, c, [70, 90, 20]);
 
 // matix 3d to 2d
