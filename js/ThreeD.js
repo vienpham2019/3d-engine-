@@ -1,14 +1,28 @@
 import { canvas, c } from './main.js';
+import { Util } from './Util.js';
 
 export class ThreeD {
   fNear = 0.1;
   fFar = 10;
   fFov = 90;
   fAspectRatio = canvas.height / canvas.width;
-  fFovRad = 1 / Math.tan(this.conver_degrees_to_pi(this.fFov));
+  fFovRad = 1 / Math.tan(Util.conver_degrees_to_pi(this.fFov));
 
   fTheta = { x: 0, y: 0, z: 0 };
   v_camera = { x: 0, y: 0, z: 0 };
+
+  vertices = [];
+  faces = [];
+
+  size = 3;
+
+  setSize(s) {
+    this.size += s;
+  }
+
+  set_rotation_angle(angle_function) {
+    angle_function(this.fTheta);
+  }
 
   matProj() {
     return [
@@ -47,85 +61,6 @@ export class ThreeD {
       [-Math.sin(this.fTheta.y), 0, Math.cos(this.fTheta.y), 0],
       [0, 0, 0, 1],
     ];
-  }
-
-  scale_matix(matrix, scale) {
-    let matrix_translated = matrix;
-    for (let i = 0; i < 3; i++) {
-      matrix_translated[i].z = matrix[i].z + scale;
-    }
-
-    return matrix_translated;
-  }
-
-  multiply_matrixs(vertices, matix_rotation) {
-    let tri_rotation = [
-      { x: 0, y: 0, z: 0 },
-      { x: 0, y: 0, z: 0 },
-      { x: 0, y: 0, z: 0 },
-    ];
-
-    for (let i = 0; i < 3; i++) {
-      this.multiply_matrix_vector(vertices[i], tri_rotation[i], matix_rotation);
-    }
-
-    return tri_rotation;
-  }
-
-  multiply_matrix_vector(vec1, vec2, matrix) {
-    let i = 0;
-    for (let key in vec2) {
-      vec2[key] = this.multiply_vector(vec1, matrix, i);
-      i++;
-    }
-
-    let w = this.multiply_vector(vec1, matrix, 3);
-
-    if (w != 0) {
-      vec2.x /= w;
-      vec2.y /= w;
-      vec2.z /= w;
-    }
-    return vec2;
-  }
-
-  multiply_vector(vector, matrix, index) {
-    return (
-      vector.x * matrix[0][index] +
-      vector.y * matrix[1][index] +
-      vector.z * matrix[2][index] +
-      matrix[3][index]
-    );
-  }
-
-  vector_line(vec_1, vec_2) {
-    let vec = { x: 0, y: 0, z: 0 };
-    for (let key in vec) {
-      vec[key] = vec_2[key] - vec_1[key];
-    }
-    return vec;
-  }
-
-  cross_product(line1, line2) {
-    let product = { x: 0, y: 0, z: 0 };
-
-    product.x = line1.y * line2.z - line1.z * line2.y;
-    product.y = line1.z * line2.x - line1.x * line2.z;
-    product.z = line1.x * line2.y - line1.y * line2.x;
-
-    return product;
-  }
-
-  dot_product(vec_1, vec_2) {
-    let result = 0;
-    for (let key in vec_1) {
-      result += vec_1[key] * vec_2[key];
-    }
-    return result;
-  }
-
-  conver_degrees_to_pi(deg) {
-    return ((deg * 0.5) / 180) * Math.PI;
   }
 
   increase_brightness(hex, percent) {
@@ -167,6 +102,87 @@ export class ThreeD {
     if (fill) {
       c.fillStyle = color;
       c.fill();
+    }
+  }
+
+  draw() {
+    let vec_triangles_to_raster = [];
+
+    for (let i = 0; i < this.faces.length; i++) {
+      let [p1, p2, p3] = this.faces[i];
+
+      let tri_rotation_z = Util.multiply_matrixs(
+        [this.vertices[p1], this.vertices[p2], this.vertices[p3]],
+        this.matix_rotation_z()
+      );
+
+      let tri_rotation_x = Util.multiply_matrixs(
+        tri_rotation_z,
+        this.matix_rotation_x()
+      );
+
+      let tri_rotation_y = Util.multiply_matrixs(
+        tri_rotation_x,
+        this.matix_rotation_y()
+      );
+
+      // Offset into the screen
+      let tri_translated = Util.scale_matix(tri_rotation_y, this.size);
+
+      let line1 = Util.vector_line(tri_translated[0], tri_translated[1]);
+      let line2 = Util.vector_line(tri_translated[0], tri_translated[2]);
+      let normal = Util.cross_product(line1, line2);
+
+      let nl = Util.find_vector_magnitude(normal);
+
+      Util.calculate_vector(normal, (n) => n / nl);
+
+      if (
+        Util.dot_product(
+          normal,
+          Util.vector_line(this.v_camera, tri_translated[0])
+        ) > 0
+      ) {
+        // Illumination
+        let light_direction = { x: 0, y: 0, z: -1 };
+        let ll = Util.find_vector_magnitude(light_direction);
+
+        Util.calculate_vector(light_direction, (ld) => ld / ll);
+
+        let dp = Util.dot_product(normal, light_direction);
+
+        let color = this.increase_brightness(
+          '#21577a',
+          (Math.abs(dp) / 1) * 100
+        );
+
+        // project triangle from 3d to 2d
+        let tri_projected = Util.multiply_matrixs(
+          tri_translated,
+          this.matProj()
+        );
+
+        // scale into view
+        for (let i = 0; i < 3; i++) {
+          tri_projected[i].x += 1.0;
+          tri_projected[i].y += 1.0;
+          tri_projected[i].x *= 0.5 * canvas.width;
+          tri_projected[i].y *= 0.5 * canvas.height;
+        }
+
+        vec_triangles_to_raster.push({ tri: tri_projected, color });
+      }
+    }
+
+    vec_triangles_to_raster.sort((t1, t2) => {
+      let z1 = (t1.tri[0].z + t1.tri[1].z + t1.tri[2].z) / 3.0;
+      let z2 = (t2.tri[0].z + t2.tri[1].z + t2.tri[2].z) / 3.0;
+
+      return z2 - z1;
+    });
+
+    for (let triangle of vec_triangles_to_raster) {
+      this.draw_triangle(triangle.tri, triangle.color, true);
     }
   }
 }

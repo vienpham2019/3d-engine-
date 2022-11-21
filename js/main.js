@@ -1,5 +1,5 @@
 import { OBJ3D } from './OBJ3D.js';
-import { Rectangle2 } from './Rectangle2.js';
+import { Rectangle } from './Rectangle.js';
 import { Triangle } from './Triangle.js';
 
 export const canvas = document.querySelector('#canvas');
@@ -12,7 +12,7 @@ const delay = 200;
 
 c.fillRect(0, 0, canvas.width, canvas.height);
 
-let obj_3d = new Rectangle2();
+let obj_3d = new Rectangle();
 // let obj_3d = new Triangle(200, c, [70, 90, 20]);
 
 // matix 3d to 2d
@@ -20,9 +20,9 @@ let obj_3d = new Rectangle2();
 // [0 1 0] *  [y] = [x,y]  => x = (1 * x) + (0 * y) + (0 * z)
 //            [Z]             y = (0 * x) + (1 * y) + (0 * z)
 
-let rotateX,
-  rotateY,
-  rotateZ = false;
+let rotateX = false;
+let rotateY = true;
+let rotateZ = false;
 
 function animate() {
   window.requestAnimationFrame(animate);
@@ -30,9 +30,9 @@ function animate() {
   c.fillRect(0, 0, canvas.width, canvas.height);
 
   if (obj_3d != null) {
-    if (rotateX) obj_3d.set_angle_X(0.008);
-    if (rotateY) obj_3d.set_angle_Y(0.008);
-    if (rotateZ) obj_3d.set_angle_Z(0.008);
+    if (rotateX) obj_3d.set_rotation_angle((a) => (a.x += 0.008));
+    if (rotateY) obj_3d.set_rotation_angle((a) => (a.y += 0.008));
+    if (rotateZ) obj_3d.set_rotation_angle((a) => (a.z += 0.008));
 
     obj_3d.draw();
   }
@@ -47,7 +47,7 @@ document.getElementById('fileInput').onchange = function (params) {
   reader.readAsText(file);
 
   reader.onload = () => {
-    obj_3d = new OBJ3D(c, reader.result);
+    obj_3d = new OBJ3D(reader.result);
   };
 
   reader.onerror = () => {
@@ -87,6 +87,12 @@ window.addEventListener('keydown', (e) => {
       obj_3d.center[1] += speed;
       break;
 
+    case '1':
+      obj_3d.setSize(5);
+      break;
+    case '2':
+      obj_3d.setSize(-5);
+      break;
     default:
       break;
   }

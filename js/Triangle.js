@@ -1,5 +1,5 @@
-import { Shape } from './Shape.js';
-export class Triangle extends Shape {
+import { ThreeD } from './ThreeD.js';
+export class Triangle extends ThreeD {
   size;
   angles = [];
   depth;
