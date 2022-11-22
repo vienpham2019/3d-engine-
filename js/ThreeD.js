@@ -1,4 +1,5 @@
-import { canvas, c } from './main.js';
+import { canvas } from './main.js';
+import { PolygonHelper } from './PloygonHelper.js';
 import { Util } from './Util.js';
 
 export class ThreeD {
@@ -63,48 +64,6 @@ export class ThreeD {
     ];
   }
 
-  increase_brightness(hex, percent) {
-    // strip the leading # if it's there
-    hex = hex.replace(/^\s*#|\s*$/g, '');
-
-    // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
-    if (hex.length == 3) {
-      hex = hex.replace(/(.)/g, '$1$1');
-    }
-
-    var r = parseInt(hex.substr(0, 2), 16),
-      g = parseInt(hex.substr(2, 2), 16),
-      b = parseInt(hex.substr(4, 2), 16);
-
-    return (
-      '#' +
-      (0 | ((1 << 8) + r + ((256 - r) * percent) / 100))
-        .toString(16)
-        .substr(1) +
-      (0 | ((1 << 8) + g + ((256 - g) * percent) / 100))
-        .toString(16)
-        .substr(1) +
-      (0 | ((1 << 8) + b + ((256 - b) * percent) / 100)).toString(16).substr(1)
-    );
-  }
-
-  draw_triangle(tri_vectors, color, fill = false) {
-    tri_vectors.push(tri_vectors[0]);
-    c.beginPath();
-    c.moveTo(tri_vectors[0].x, tri_vectors[0].y);
-
-    for (let vector of tri_vectors) {
-      c.lineTo(vector.x, vector.y);
-    }
-
-    c.strokeStyle = color;
-    c.stroke();
-    if (fill) {
-      c.fillStyle = color;
-      c.fill();
-    }
-  }
-
   draw() {
     let vec_triangles_to_raster = [];
 
@@ -131,11 +90,7 @@ export class ThreeD {
 
       let line1 = Util.vector_line(tri_translated[0], tri_translated[1]);
       let line2 = Util.vector_line(tri_translated[0], tri_translated[2]);
-      let normal = Util.cross_product(line1, line2);
-
-      let nl = Util.find_vector_magnitude(normal);
-
-      Util.calculate_vector(normal, (n) => n / nl);
+      let normal = Util.vector_normalise(Util.cross_product(line1, line2));
 
       if (
         Util.dot_product(
@@ -144,14 +99,11 @@ export class ThreeD {
         ) > 0
       ) {
         // Illumination
-        let light_direction = { x: 0, y: 0, z: -1 };
-        let ll = Util.find_vector_magnitude(light_direction);
-
-        Util.calculate_vector(light_direction, (ld) => ld / ll);
+        let light_direction = Util.vector_normalise({ x: 0, y: 0, z: -1 });
 
         let dp = Util.dot_product(normal, light_direction);
 
-        let color = this.increase_brightness(
+        let color = PolygonHelper.increase_brightness(
           '#21577a',
           (Math.abs(dp) / 1) * 100
         );
@@ -182,7 +134,7 @@ export class ThreeD {
     });
 
     for (let triangle of vec_triangles_to_raster) {
-      this.draw_triangle(triangle.tri, triangle.color, true);
+      PolygonHelper.draw_triangle(triangle.tri, triangle.color, true);
     }
   }
 }

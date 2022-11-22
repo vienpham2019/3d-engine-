@@ -18,9 +18,7 @@ export class Util {
   }
 
   static find_vector_magnitude(vector) {
-    return Math.sqrt(
-      vector.x * vector.x + vector.y * vector.y + vector.z * vector.z
-    );
+    return Math.sqrt(this.dot_product(vector, vector));
   }
 
   static scale_matix(matrix, scale) {
@@ -36,6 +34,27 @@ export class Util {
     for (let key in vector) {
       vector[key] = calculate_function(vector[key]);
     }
+  }
+
+  static vector_sub(v1, v2) {
+    return { x: v1.x - v2.x, y: v1.y - v2.y, z: v1.z - v2.z };
+  }
+
+  static vector_add(v1, v2) {
+    return { x: v1.x + v2.x, y: v1.y + v2.y, z: v1.z + v2.z };
+  }
+
+  static vector_multiply(v1, v2) {
+    return { x: v1.x * v2.x, y: v1.y * v2.y, z: v1.z * v2.z };
+  }
+
+  static vector_divide(v1, v2) {
+    return { x: v1.x / v2.x, y: v1.y / v2.y, z: v1.z / v2.z };
+  }
+
+  static vector_normalise(vector) {
+    let l = this.find_vector_magnitude(vector);
+    return { x: vector.x / l, y: vector.y / l, z: vector.z / l };
   }
 
   static vector_line(vec_1, vec_2) {
@@ -95,4 +114,8 @@ export class Util {
       matrix[3][index]
     );
   }
+
+  // static matrix_point_at(pos_vec, target_vec, up_vec) {
+  //   let new_forward = this.vector_sub(target, pos);
+  // }
 }

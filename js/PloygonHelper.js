@@ -1,3 +1,4 @@
+import { c } from './main.js';
 import { Util } from './Util.js';
 
 export class PolygonHelper {
@@ -54,5 +55,47 @@ export class PolygonHelper {
     let cross3 = Util.cross_product(ca, cp);
 
     return !(cross1 > 0 || cross2 > 0 || cross3 > 0);
+  }
+
+  static draw_triangle(tri_vectors, color, fill = false) {
+    tri_vectors.push(tri_vectors[0]);
+    c.beginPath();
+    c.moveTo(tri_vectors[0].x, tri_vectors[0].y);
+
+    for (let vector of tri_vectors) {
+      c.lineTo(vector.x, vector.y);
+    }
+
+    c.strokeStyle = color;
+    c.stroke();
+    if (fill) {
+      c.fillStyle = color;
+      c.fill();
+    }
+  }
+
+  static increase_brightness(hex, percent) {
+    // strip the leading # if it's there
+    hex = hex.replace(/^\s*#|\s*$/g, '');
+
+    // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
+    if (hex.length == 3) {
+      hex = hex.replace(/(.)/g, '$1$1');
+    }
+
+    var r = parseInt(hex.substr(0, 2), 16),
+      g = parseInt(hex.substr(2, 2), 16),
+      b = parseInt(hex.substr(4, 2), 16);
+
+    return (
+      '#' +
+      (0 | ((1 << 8) + r + ((256 - r) * percent) / 100))
+        .toString(16)
+        .substr(1) +
+      (0 | ((1 << 8) + g + ((256 - g) * percent) / 100))
+        .toString(16)
+        .substr(1) +
+      (0 | ((1 << 8) + b + ((256 - b) * percent) / 100)).toString(16).substr(1)
+    );
   }
 }
