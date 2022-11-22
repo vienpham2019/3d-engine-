@@ -87,6 +87,7 @@ export class Util {
   }
 
   static multiply_vector(vector, matrix, index) {
+    if (vector === undefined) return;
     return (
       vector.x * matrix[0][index] +
       vector.y * matrix[1][index] +

@@ -14,7 +14,7 @@ export class ThreeD {
   vertices = [];
   faces = [];
 
-  size = 3;
+  size = 7;
 
   setSize(s) {
     this.size += s;
