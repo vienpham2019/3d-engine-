@@ -1,6 +1,7 @@
 import { OBJ3D } from './OBJ3D.js';
 import { Rectangle } from './Rectangle.js';
 import { Triangle } from './Triangle.js';
+import { Util } from './Util.js';
 
 export const canvas = document.querySelector('#canvas');
 export const c = canvas.getContext('2d');
@@ -21,7 +22,7 @@ let obj_3d = new Rectangle();
 //            [Z]             y = (0 * x) + (1 * y) + (0 * z)
 
 let rotateX = false;
-let rotateY = true;
+let rotateY = false;
 let rotateZ = false;
 
 function animate() {
@@ -55,55 +56,38 @@ document.getElementById('fileInput').onchange = function (params) {
   };
 };
 
-let speed = 5;
 window.addEventListener('keydown', (e) => {
   if (obj_3d === null) return;
+  let v_for_ward = Util.vector_multiply(obj_3d.v_look_dir, 0.8);
   switch (e.key) {
-    case '=':
-      obj_3d.setSize(5);
+    case 'ArrowUp':
+      obj_3d.v_camera.y += 0.8;
       break;
-    case '-':
-      obj_3d.setSize(-5);
+    case 'ArrowDown':
+      obj_3d.v_camera.y -= 0.8;
       break;
-    case 'x':
-      rotateX = !rotateX;
+    case 'ArrowLeft':
+      obj_3d.v_camera.x += 0.8;
       break;
-    case 'y':
-      rotateY = !rotateY;
+    case 'ArrowRight':
+      obj_3d.v_camera.x -= 0.8;
       break;
-    case 'z':
-      rotateZ = !rotateZ;
-      break;
-    case 'a':
-      obj_3d.center[0] -= speed;
-      break;
-    case 'd':
-      obj_3d.center[0] += speed;
-      break;
+
     case 'w':
-      obj_3d.center[1] -= speed;
+      obj_3d.v_camera = Util.vector_add(obj_3d.v_camera, v_for_ward);
       break;
     case 's':
-      obj_3d.center[1] += speed;
+      obj_3d.v_camera = Util.vector_sub(obj_3d.v_camera, v_for_ward);
+
+      break;
+    case 'a':
+      obj_3d.fYaw -= 0.2;
+      break;
+    case 'd':
+      obj_3d.fYaw += 0.2;
       break;
 
-    case '1':
-      obj_3d.setSize(5);
-      break;
-    case '2':
-      obj_3d.setSize(-5);
-      break;
     default:
       break;
-  }
-});
-
-window.addEventListener('wheel', (e) => {
-  if (e.deltaY < 0) {
-    // go up
-    obj_3d.setSize(10);
-  } else if (e.deltaY > 0) {
-    // go down
-    obj_3d.setSize(-10);
   }
 });

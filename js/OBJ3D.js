@@ -25,7 +25,15 @@ export class OBJ3D extends ThreeD {
           .replace('f', '')
           .trim()
           .split(' ')
-          .map((f) => parseInt(f.split('/')[0]) - 1);
+          .map((f) => {
+            let face_value;
+            if (f.includes('/')) {
+              face_value = f.split('/')[0];
+            } else {
+              face_value = f.split(' ')[0];
+            }
+            return parseInt(face_value) - 1;
+          });
         temp_faces.push(face);
       }
     }

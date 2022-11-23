@@ -17,8 +17,8 @@ export class PolygonHelper {
         let vb = input_vertices[b];
         let vc = input_vertices[c];
 
-        let va_to_vb = Util.vector_line(va, vb);
-        let va_to_vc = Util.vector_line(va, vc);
+        let va_to_vb = Util.vector_sub(vb, va);
+        let va_to_vc = Util.vector_sub(vc, va);
 
         // Is ear test vertext is cenvex ?
         if (Util.cross_product(va_to_vb, va_to_vc) < 0) {
@@ -42,13 +42,13 @@ export class PolygonHelper {
   }
 
   static is_point_in_triangle(p, a, b, c) {
-    let ab = Util.vector_line(a, b);
-    let bc = Util.vector_line(b, c);
-    let ca = Util.vector_line(c, a);
+    let ab = Util.vector_sub(b, a);
+    let bc = Util.vector_sub(c, b);
+    let ca = Util.vector_sub(a, c);
 
-    let ap = Util.vector_line(a, p);
-    let bp = Util.vector_line(b, p);
-    let cp = Util.vector_line(c, p);
+    let ap = Util.vector_sub(p, a);
+    let bp = Util.vector_sub(p, b);
+    let cp = Util.vector_sub(p, c);
 
     let cross1 = Util.cross_product(ab, ap);
     let cross2 = Util.cross_product(bc, bp);
@@ -66,7 +66,8 @@ export class PolygonHelper {
       c.lineTo(vector.x, vector.y);
     }
 
-    c.strokeStyle = color;
+    // c.strokeStyle = color;
+    c.strokeStyle = 'black';
     c.stroke();
     if (fill) {
       c.fillStyle = color;
