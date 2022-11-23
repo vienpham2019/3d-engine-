@@ -55,22 +55,22 @@ document.getElementById('fileInput').onchange = function (params) {
     console.log(reader.error);
   };
 };
-
+let speed = 3;
 window.addEventListener('keydown', (e) => {
   if (obj_3d === null) return;
-  let v_for_ward = Util.vector_multiply(obj_3d.v_look_dir, 0.8);
+  let v_for_ward = Util.vector_multiply(obj_3d.v_look_dir, speed);
   switch (e.key) {
     case 'ArrowUp':
-      obj_3d.v_camera.y += 0.8;
+      obj_3d.v_camera.y -= speed;
       break;
     case 'ArrowDown':
-      obj_3d.v_camera.y -= 0.8;
+      obj_3d.v_camera.y += speed;
       break;
     case 'ArrowLeft':
-      obj_3d.v_camera.x += 0.8;
+      obj_3d.v_camera.x -= speed;
       break;
     case 'ArrowRight':
-      obj_3d.v_camera.x -= 0.8;
+      obj_3d.v_camera.x += speed;
       break;
 
     case 'w':
@@ -81,10 +81,10 @@ window.addEventListener('keydown', (e) => {
 
       break;
     case 'a':
-      obj_3d.fYaw -= 0.2;
+      obj_3d.fYaw += 0.2;
       break;
     case 'd':
-      obj_3d.fYaw += 0.2;
+      obj_3d.fYaw -= 0.2;
       break;
 
     default:

@@ -105,7 +105,7 @@ export class ThreeD {
 
         let dp = Util.dot_product(normal, light_direction);
 
-        let color = PolygonHelper.lighten('#003c9e', -dp);
+        let color = PolygonHelper.lighten('#00917e', -dp);
 
         tri_viewed = Util.multiply_matrixs(tri_translated, mat_view);
 
