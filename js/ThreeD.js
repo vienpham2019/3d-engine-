@@ -18,6 +18,9 @@ export class ThreeD {
   vertices = [];
   faces = [];
 
+  draw_faces = true;
+  draw_stroke = false;
+
   size = 7;
 
   setSize(s) {
@@ -102,10 +105,7 @@ export class ThreeD {
 
         let dp = Util.dot_product(normal, light_direction);
 
-        let color = PolygonHelper.increase_brightness(
-          '#03f0fc',
-          (Math.abs(dp) / 1) * 100
-        );
+        let color = PolygonHelper.lighten('#003c9e', -dp);
 
         tri_viewed = Util.multiply_matrixs(tri_translated, mat_view);
 

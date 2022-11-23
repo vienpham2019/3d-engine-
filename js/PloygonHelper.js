@@ -66,8 +66,8 @@ export class PolygonHelper {
       c.lineTo(vector.x, vector.y);
     }
 
-    // c.strokeStyle = color;
-    c.strokeStyle = 'black';
+    c.strokeStyle = color;
+    // c.strokeStyle = 'black';
     c.stroke();
     if (fill) {
       c.fillStyle = color;
@@ -75,28 +75,50 @@ export class PolygonHelper {
     }
   }
 
-  static increase_brightness(hex, percent) {
-    // strip the leading # if it's there
-    hex = hex.replace(/^\s*#|\s*$/g, '');
+  static hex_to_rgb(hex) {
+    return hex
+      .replace(
+        /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
+        (m, r, g, b) => '#' + r + r + g + g + b + b
+      )
+      .substring(1)
+      .match(/.{2}/g)
+      .map((x) => parseInt(x, 16));
+  }
 
-    // convert 3 char codes --> 6, e.g. `E0F` --> `EE00FF`
-    if (hex.length == 3) {
-      hex = hex.replace(/(.)/g, '$1$1');
-    }
-
-    var r = parseInt(hex.substr(0, 2), 16),
-      g = parseInt(hex.substr(2, 2), 16),
-      b = parseInt(hex.substr(4, 2), 16);
-
+  static rgb_to_hex(r, g, b) {
     return (
       '#' +
-      (0 | ((1 << 8) + r + ((256 - r) * percent) / 100))
-        .toString(16)
-        .substr(1) +
-      (0 | ((1 << 8) + g + ((256 - g) * percent) / 100))
-        .toString(16)
-        .substr(1) +
-      (0 | ((1 << 8) + b + ((256 - b) * percent) / 100)).toString(16).substr(1)
+      [r, g, b]
+        .map((x) => {
+          const hex = x.toString(16);
+          return hex.length === 1 ? '0' + hex : hex;
+        })
+        .join('')
     );
+  }
+
+  static lighten(color, luminosity) {
+    // validate hex string
+    color = new String(color).replace(/[^0-9a-f]/gi, '');
+    if (color.length < 6) {
+      color = color[0] + color[0] + color[1] + color[1] + color[2] + color[2];
+    }
+    luminosity = luminosity || 0;
+
+    // convert to decimal and change luminosity
+    var newColor = '#',
+      c,
+      i,
+      black = 0,
+      white = 255;
+    for (i = 0; i < 3; i++) {
+      c = parseInt(color.substr(i * 2, 2), 16);
+      c = Math.round(
+        Math.min(Math.max(black, c + luminosity * white), white)
+      ).toString(16);
+      newColor += ('00' + c).substr(c.length);
+    }
+    return newColor;
   }
 }
