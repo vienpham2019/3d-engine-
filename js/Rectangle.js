@@ -33,4 +33,17 @@ export class Rectangle extends ThreeD {
     [4, 0, 1],
     [4, 1, 5],
   ];
+
+  constructor() {
+    super();
+    for (let f of this.faces) {
+      this.mesh_cube.push({
+        vertices_tri: [
+          { ...this.vertices[f[0]], w: 1 },
+          { ...this.vertices[f[1]], w: 1 },
+          { ...this.vertices[f[2]], w: 1 },
+        ],
+      });
+    }
+  }
 }

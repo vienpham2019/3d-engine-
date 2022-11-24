@@ -16,7 +16,7 @@ export class Util {
   }
 
   static cross_product(line1, line2) {
-    let product = { x: 0, y: 0, z: 0 };
+    let product = { x: 0, y: 0, z: 0, w: 1 };
 
     product.x = line1.y * line2.z - line1.z * line2.y;
     product.y = line1.z * line2.x - line1.x * line2.z;
@@ -108,9 +108,9 @@ export class Util {
   // matrix
   static multiply_matrixs(matrix_1, matrix_2) {
     let matrix = [
-      { x: 0, y: 0, z: 0 },
-      { x: 0, y: 0, z: 0 },
-      { x: 0, y: 0, z: 0 },
+      { x: 0, y: 0, z: 0, w: 1 },
+      { x: 0, y: 0, z: 0, w: 1 },
+      { x: 0, y: 0, z: 0, w: 1 },
     ];
 
     // if (!Array.isArray(matrix_1[0]))

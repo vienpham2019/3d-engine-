@@ -21,8 +21,8 @@ let obj_3d = new Rectangle();
 // [0 1 0] *  [y] = [x,y]  => x = (1 * x) + (0 * y) + (0 * z)
 //            [Z]             y = (0 * x) + (1 * y) + (0 * z)
 
-let rotateX = false;
-let rotateY = false;
+let rotateX = true;
+let rotateY = true;
 let rotateZ = false;
 
 function animate() {

@@ -57,7 +57,7 @@ export class PolygonHelper {
     return !(cross1 > 0 || cross2 > 0 || cross3 > 0);
   }
 
-  static draw_triangle(tri_vectors, color, fill = false) {
+  static draw_triangle({ tri_vectors, color, fill = false, stroke = true }) {
     tri_vectors.push(tri_vectors[0]);
     c.beginPath();
     c.moveTo(tri_vectors[0].x, tri_vectors[0].y);
@@ -66,8 +66,9 @@ export class PolygonHelper {
       c.lineTo(vector.x, vector.y);
     }
 
-    c.strokeStyle = color;
-    // c.strokeStyle = 'black';
+    if (fill && !stroke) c.strokeStyle = color;
+    else if (fill && stroke) c.strokeStyle = 'black';
+    else c.strokeStyle = 'white';
     c.stroke();
     if (fill) {
       c.fillStyle = color;

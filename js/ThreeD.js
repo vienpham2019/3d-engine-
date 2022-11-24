@@ -18,7 +18,9 @@ export class ThreeD {
   vertices = [];
   faces = [];
 
-  draw_faces = true;
+  mesh_cube = [];
+
+  draw_faces = false;
   draw_stroke = false;
 
   size = 7;
@@ -67,12 +69,12 @@ export class ThreeD {
     // make view matrix from camera
     let mat_view = Util.matrix_quick_inverse(mat_camera);
 
-    for (let i = 0; i < this.faces.length; i++) {
-      let [p1, p2, p3] = this.faces[i];
+    for (let mesh of this.mesh_cube) {
+      let [p1, p2, p3] = mesh.vertices_tri;
       let tri_viewed;
 
       let tri_rotation_z = Util.multiply_matrixs(
-        [this.vertices[p1], this.vertices[p2], this.vertices[p3]],
+        [p1, p2, p3],
         Util.matix_rotation_z(this.fTheta.z)
       );
 
@@ -119,8 +121,17 @@ export class ThreeD {
           // project triangle from 3d to 2d
           let tri_projected = Util.multiply_matrixs(tri, this.matProj());
 
+          for (let i = 0; i < 3; i++) {
+            tri_projected[i] = Util.vector_divide(
+              tri_projected[i],
+              tri_projected[i].w
+            );
+          }
+
           // scale into view
           for (let i = 0; i < 3; i++) {
+            tri_projected[i].x *= -1;
+            tri_projected[i].y *= -1;
             tri_projected[i].x += 1.0;
             tri_projected[i].y += 1.0;
             tri_projected[i].x *= 0.5 * canvas.width;
@@ -192,7 +203,12 @@ export class ThreeD {
       }
 
       for (let tri of list_triangles) {
-        PolygonHelper.draw_triangle(tri.tri, tri.color, true);
+        PolygonHelper.draw_triangle({
+          tri_vectors: tri.tri,
+          color: tri.color,
+          fill: this.draw_faces,
+          stroke: this.draw_stroke,
+        });
       }
     }
   }

@@ -5,6 +5,15 @@ export class OBJ3D extends ThreeD {
   constructor(file) {
     super();
     this.init(file);
+    for (let f of this.faces) {
+      this.mesh_cube.push({
+        vertices_tri: [
+          { ...this.vertices[f[0]], w: 1 },
+          { ...this.vertices[f[1]], w: 1 },
+          { ...this.vertices[f[2]], w: 1 },
+        ],
+      });
+    }
   }
 
   init(file) {
