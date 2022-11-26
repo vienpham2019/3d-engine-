@@ -89,17 +89,25 @@ export class ThreeD {
       );
 
       // Offset into the screen
-      let tri_translated = Util.scale_matix(tri_rotation_y, this.size);
+      let tri_translated = {};
+      tri_translated.vertices_tri = Util.scale_matix(tri_rotation_y, this.size);
+      tri_translated.texter_tri = mesh.texter_tri;
 
-      let line1 = Util.vector_sub(tri_translated[1], tri_translated[0]);
-      let line2 = Util.vector_sub(tri_translated[2], tri_translated[0]);
+      let line1 = Util.vector_sub(
+        tri_translated.vertices_tri[1],
+        tri_translated.vertices_tri[0]
+      );
+      let line2 = Util.vector_sub(
+        tri_translated.vertices_tri[2],
+        tri_translated.vertices_tri[0]
+      );
 
       let normal = Util.vector_normalise(Util.cross_product(line1, line2));
 
       if (
         Util.dot_product(
           normal,
-          Util.vector_sub(tri_translated[0], this.v_camera)
+          Util.vector_sub(tri_translated.vertices_tri[0], this.v_camera)
         ) > 0
       ) {
         // Illumination
@@ -109,7 +117,12 @@ export class ThreeD {
 
         let color = PolygonHelper.lighten('#00917e', -dp);
 
-        tri_viewed = Util.multiply_matrixs(tri_translated, mat_view);
+        tri_viewed = {};
+        tri_viewed.vertices_tri = Util.multiply_matrixs(
+          tri_translated.vertices_tri,
+          mat_view
+        );
+        tri_viewed.texter_tri = tri_translated.texter_tri;
 
         let clipped = Util.triangle_clip_against_plane(
           { x: 0, y: 0, z: 0.1 },
@@ -119,23 +132,28 @@ export class ThreeD {
 
         for (let tri of clipped) {
           // project triangle from 3d to 2d
-          let tri_projected = Util.multiply_matrixs(tri, this.matProj());
+          let tri_projected = {};
+          tri_projected.vertices_tri = Util.multiply_matrixs(
+            tri.vertices_tri,
+            this.matProj()
+          );
+          tri_projected.texter_tri = tri.texter_tri;
 
           for (let i = 0; i < 3; i++) {
-            tri_projected[i] = Util.vector_divide(
-              tri_projected[i],
-              tri_projected[i].w
+            tri_projected.vertices_tri[i] = Util.vector_divide(
+              tri_projected.vertices_tri[i],
+              tri_projected.vertices_tri[i].w
             );
           }
 
           // scale into view
           for (let i = 0; i < 3; i++) {
-            tri_projected[i].x *= -1;
-            tri_projected[i].y *= -1;
-            tri_projected[i].x += 1.0;
-            tri_projected[i].y += 1.0;
-            tri_projected[i].x *= 0.5 * canvas.width;
-            tri_projected[i].y *= 0.5 * canvas.height;
+            tri_projected.vertices_tri[i].x *= -1;
+            tri_projected.vertices_tri[i].y *= -1;
+            tri_projected.vertices_tri[i].x += 1.0;
+            tri_projected.vertices_tri[i].y += 1.0;
+            tri_projected.vertices_tri[i].x *= 0.5 * canvas.width;
+            tri_projected.vertices_tri[i].y *= 0.5 * canvas.height;
           }
 
           vec_triangles_to_raster.push({ tri: tri_projected, color });
@@ -144,8 +162,16 @@ export class ThreeD {
     }
 
     vec_triangles_to_raster.sort((t1, t2) => {
-      let z1 = (t1.tri[0].z + t1.tri[1].z + t1.tri[2].z) / 3.0;
-      let z2 = (t2.tri[0].z + t2.tri[1].z + t2.tri[2].z) / 3.0;
+      let z1 =
+        (t1.tri.vertices_tri[0].z +
+          t1.tri.vertices_tri[1].z +
+          t1.tri.vertices_tri[2].z) /
+        3.0;
+      let z2 =
+        (t2.tri.vertices_tri[0].z +
+          t2.tri.vertices_tri[1].z +
+          t2.tri.vertices_tri[2].z) /
+        3.0;
 
       return z2 - z1;
     });
@@ -203,8 +229,34 @@ export class ThreeD {
       }
 
       for (let tri of list_triangles) {
+        // let image_src = new Image();
+        // image_src.src = '../js/mario.png';
+
+        // c.drawImage(
+        //   image_src,
+        //   tri.tri.vertices_tri[0].x,
+        //   tri.tri.vertices_tri[0].y,
+        //   w,
+        //   h
+        // );
+
+        PolygonHelper.texterd_triangle(
+          tri.tri.vertices_tri[0].x,
+          tri.tri.vertices_tri[0].y,
+          tri.tri.texter_tri[0].u,
+          tri.tri.texter_tri[0].v,
+          tri.tri.vertices_tri[1].x,
+          tri.tri.vertices_tri[1].y,
+          tri.tri.texter_tri[1].u,
+          tri.tri.texter_tri[1].v,
+          tri.tri.vertices_tri[2].x,
+          tri.tri.vertices_tri[2].y,
+          tri.tri.texter_tri[2].u,
+          tri.tri.texter_tri[2].v
+        );
+
         PolygonHelper.draw_triangle({
-          tri_vectors: tri.tri,
+          tri_vectors: tri.tri.vertices_tri,
           color: tri.color,
           fill: this.draw_faces,
           stroke: this.draw_stroke,

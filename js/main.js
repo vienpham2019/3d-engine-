@@ -23,12 +23,29 @@ let obj_3d = new Rectangle();
 
 let rotateX = true;
 let rotateY = true;
-let rotateZ = false;
+let rotateZ = true;
+
+var lastCalledTime;
+var fps;
 
 function animate() {
-  window.requestAnimationFrame(animate);
   c.fillStyle = 'black';
   c.fillRect(0, 0, canvas.width, canvas.height);
+
+  // let imageData = c.createImageData(1, 1);
+
+  // for (let i = 0; i < imageData.data.length; i += 4) {
+  //   // Percentage in the x direction, times 255
+  //   let x = ((i % 400) / 400) * 255;
+  //   // Percentage in the y direction, times 255
+  //   let y = (Math.ceil(i / 400) / 100) * 255;
+
+  //   // Modify pixel data
+  //   imageData.data[i + 0] = x; // R value
+  //   imageData.data[i + 1] = y; // G value
+  //   imageData.data[i + 2] = 255 - x; // B value
+  //   imageData.data[i + 3] = 255; // A value
+  // }
 
   if (obj_3d != null) {
     if (rotateX) obj_3d.set_rotation_angle((a) => (a.x += 0.008));
@@ -37,6 +54,20 @@ function animate() {
 
     obj_3d.draw();
   }
+
+  // if (!lastCalledTime) {
+  //   lastCalledTime = Date.now();
+  //   fps = 0;
+  //   return;
+  // }
+
+  window.requestAnimationFrame(animate);
+
+  let delta = (Date.now() - lastCalledTime) / 1000;
+  lastCalledTime = Date.now();
+  fps = 1 / delta;
+
+  document.getElementById('fps').innerHTML = Math.floor(fps);
 }
 
 animate();
@@ -55,7 +86,8 @@ document.getElementById('fileInput').onchange = function (params) {
     console.log(reader.error);
   };
 };
-let speed = 3;
+
+let speed = 1;
 window.addEventListener('keydown', (e) => {
   if (obj_3d === null) return;
   let v_for_ward = Util.vector_multiply(obj_3d.v_look_dir, speed);

@@ -1,3 +1,4 @@
+import { c } from './main.js';
 import { ThreeD } from './ThreeD.js';
 
 export class Rectangle extends ThreeD {
@@ -11,6 +12,18 @@ export class Rectangle extends ThreeD {
     { x: 1, y: 1, z: 1 },
     { x: 1, y: 0, z: 1 },
     { x: 0, y: 0, z: 1 },
+  ];
+
+  texters = [
+    { u: 0, v: 1 },
+    { u: 0, v: 0 },
+    { u: 1, v: 0 },
+    { u: 1, v: 1 },
+  ];
+
+  texter_face = [
+    [0, 3, 2],
+    [0, 2, 1],
   ];
 
   // rule bl tl tr bl
@@ -36,6 +49,8 @@ export class Rectangle extends ThreeD {
 
   constructor() {
     super();
+    let t = 0;
+
     for (let f of this.faces) {
       this.mesh_cube.push({
         vertices_tri: [
@@ -43,7 +58,13 @@ export class Rectangle extends ThreeD {
           { ...this.vertices[f[1]], w: 1 },
           { ...this.vertices[f[2]], w: 1 },
         ],
+        texter_tri: [
+          { ...this.texters[this.texter_face[t][0]] },
+          { ...this.texters[this.texter_face[t][1]] },
+          { ...this.texters[this.texter_face[t][2]] },
+        ],
       });
+      if (++t === 2) t = 0;
     }
   }
 }

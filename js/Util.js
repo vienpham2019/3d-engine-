@@ -3,6 +3,13 @@ export class Util {
     return ((deg * 0.5) / 180) * Math.PI;
   }
 
+  static swap(a, b) {
+    let temp = a;
+    a = b;
+    b = temp;
+    return [a, b];
+  }
+
   static conver_matrix_obj_to_array(matrix) {
     let result = [];
     for (let m of matrix) {
@@ -228,15 +235,15 @@ export class Util {
   }
 
   // clipping
-  static vector_intersect_plane(plane_p, plane_n, line_start, line_end) {
+  static vector_intersect_plane(plane_p, plane_n, line_start, line_end, t = 0) {
     plane_n = this.vector_normalise(plane_n);
     let plane_d = -this.dot_product(plane_n, plane_p);
     let ad = this.dot_product(line_start, plane_n);
     let bd = this.dot_product(line_end, plane_n);
-    let t = (-plane_d - ad) / (bd - ad);
+    t = (-plane_d - ad) / (bd - ad);
     let line_start_to_end = this.vector_sub(line_end, line_start);
     let line_to_intersect = this.vector_multiply(line_start_to_end, t);
-    return this.vector_add(line_start, line_to_intersect);
+    return { vector: this.vector_add(line_start, line_to_intersect), t };
   }
 
   static triangle_clip_against_plane(plane_p, plane_n, in_tri) {
@@ -248,21 +255,44 @@ export class Util {
     let n_inside_point_count = 0;
     let n_outside_point_count = 0;
 
+    let inside_texs = [];
+    let outside_texs = [];
+    let n_inside_tex_count = 0;
+    let n_outside_tex_count = 0;
+
     let d0 =
-      this.dot_product(plane_n, in_tri[0]) - this.dot_product(plane_n, plane_p);
+      this.dot_product(plane_n, in_tri.vertices_tri[0]) -
+      this.dot_product(plane_n, plane_p);
     let d1 =
-      this.dot_product(plane_n, in_tri[1]) - this.dot_product(plane_n, plane_p);
+      this.dot_product(plane_n, in_tri.vertices_tri[1]) -
+      this.dot_product(plane_n, plane_p);
     let d2 =
-      this.dot_product(plane_n, in_tri[2]) - this.dot_product(plane_n, plane_p);
+      this.dot_product(plane_n, in_tri.vertices_tri[2]) -
+      this.dot_product(plane_n, plane_p);
 
-    if (d0 >= 0) inside_points[n_inside_point_count++] = in_tri[0];
-    else outside_points[n_outside_point_count++] = in_tri[0];
+    if (d0 >= 0) {
+      inside_points[n_inside_point_count++] = in_tri.vertices_tri[0];
+      inside_texs[n_inside_tex_count++] = in_tri.texter_tri[0];
+    } else {
+      outside_points[n_outside_point_count++] = in_tri.vertices_tri[0];
+      outside_texs[n_outside_tex_count++] = in_tri.texter_tri[0];
+    }
 
-    if (d1 >= 0) inside_points[n_inside_point_count++] = in_tri[1];
-    else outside_points[n_outside_point_count++] = in_tri[1];
+    if (d1 >= 0) {
+      inside_points[n_inside_point_count++] = in_tri.vertices_tri[1];
+      inside_texs[n_inside_tex_count++] = in_tri.texter_tri[1];
+    } else {
+      outside_points[n_outside_point_count++] = in_tri.vertices_tri[1];
+      outside_texs[n_outside_tex_count++] = in_tri.texter_tri[1];
+    }
 
-    if (d2 >= 0) inside_points[n_inside_point_count++] = in_tri[2];
-    else outside_points[n_outside_point_count++] = in_tri[2];
+    if (d2 >= 0) {
+      inside_points[n_inside_point_count++] = in_tri.vertices_tri[2];
+      inside_texs[n_inside_tex_count++] = in_tri.texter_tri[2];
+    } else {
+      outside_points[n_outside_point_count++] = in_tri.vertices_tri[2];
+      outside_texs[n_outside_tex_count++] = in_tri.texter_tri[2];
+    }
 
     if (n_inside_point_count === 0) {
       return [];
@@ -273,52 +303,102 @@ export class Util {
     }
 
     if (n_inside_point_count == 1 && n_outside_point_count == 2) {
+      let p1 = this.vector_intersect_plane(
+        plane_p,
+        plane_n,
+        inside_points[0],
+        outside_points[0],
+        0
+      );
+
+      let p2 = this.vector_intersect_plane(
+        plane_p,
+        plane_n,
+        inside_points[0],
+        outside_points[1],
+        p1.t
+      );
+
       return [
-        [
-          inside_points[0],
-          this.vector_intersect_plane(
-            plane_p,
-            plane_n,
-            inside_points[0],
-            outside_points[0]
-          ),
-          this.vector_intersect_plane(
-            plane_p,
-            plane_n,
-            inside_points[0],
-            outside_points[1]
-          ),
-        ],
+        {
+          vertices_tri: [inside_points[0], p1.vector, p2.vector],
+          texter_tri: [
+            inside_texs[0],
+            {
+              u:
+                p1.t * (outside_texs[0].u - inside_texs[0].u) +
+                inside_texs[0].u,
+              v:
+                p1.t * (outside_texs[0].v - inside_texs[0].v) +
+                inside_texs[0].v,
+            },
+            {
+              u:
+                p2.t * (outside_texs[1].u - inside_texs[0].u) +
+                inside_texs[0].u,
+              v:
+                p2.t * (outside_texs[1].v - inside_texs[0].v) +
+                inside_texs[0].v,
+            },
+          ],
+        },
       ];
     }
 
     if (n_inside_point_count == 2 && n_outside_point_count == 1) {
+      let p1 = this.vector_intersect_plane(
+        plane_p,
+        plane_n,
+        inside_points[0],
+        outside_points[0],
+        0
+      );
+      let p2 = this.vector_intersect_plane(
+        plane_p,
+        plane_n,
+        inside_points[1],
+        outside_points[0],
+        0
+      );
+
       return [
-        [
-          inside_points[0],
-          inside_points[1],
-          this.vector_intersect_plane(
-            plane_p,
-            plane_n,
-            inside_points[0],
-            outside_points[0]
-          ),
-        ],
-        [
-          inside_points[1],
-          this.vector_intersect_plane(
-            plane_p,
-            plane_n,
-            inside_points[0],
-            outside_points[0]
-          ),
-          this.vector_intersect_plane(
-            plane_p,
-            plane_n,
-            inside_points[1],
-            outside_points[0]
-          ),
-        ],
+        {
+          vertices_tri: [inside_points[0], inside_points[1], p1.vector],
+          texter_tri: [
+            inside_texs[0],
+            inside_texs[1],
+            {
+              u:
+                p1.t * (outside_texs[0].u - inside_texs[0].u) +
+                inside_texs[0].u,
+              v:
+                p1.t * (outside_texs[0].v - inside_texs[0].v) +
+                inside_texs[0].v,
+            },
+          ],
+        },
+        {
+          vertices_tri: [inside_points[1], p1.vector, p2.vector],
+          texter_tri: [
+            inside_texs[1],
+            {
+              u:
+                p1.t * (outside_texs[0].u - inside_texs[0].u) +
+                inside_texs[0].u,
+              v:
+                p1.t * (outside_texs[0].v - inside_texs[0].v) +
+                inside_texs[0].v,
+            },
+            {
+              u:
+                p2.t * (outside_texs[0].u - inside_texs[1].u) +
+                inside_texs[1].u,
+              v:
+                p2.t * (outside_texs[0].v - inside_texs[1].v) +
+                inside_texs[1].v,
+            },
+          ],
+        },
       ];
     }
   }
