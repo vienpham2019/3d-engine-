@@ -255,11 +255,6 @@ export class Util {
     let n_inside_point_count = 0;
     let n_outside_point_count = 0;
 
-    let inside_texs = [];
-    let outside_texs = [];
-    let n_inside_tex_count = 0;
-    let n_outside_tex_count = 0;
-
     let d0 =
       this.dot_product(plane_n, in_tri.vertices_tri[0]) -
       this.dot_product(plane_n, plane_p);
@@ -272,26 +267,20 @@ export class Util {
 
     if (d0 >= 0) {
       inside_points[n_inside_point_count++] = in_tri.vertices_tri[0];
-      inside_texs[n_inside_tex_count++] = in_tri.texter_tri[0];
     } else {
       outside_points[n_outside_point_count++] = in_tri.vertices_tri[0];
-      outside_texs[n_outside_tex_count++] = in_tri.texter_tri[0];
     }
 
     if (d1 >= 0) {
       inside_points[n_inside_point_count++] = in_tri.vertices_tri[1];
-      inside_texs[n_inside_tex_count++] = in_tri.texter_tri[1];
     } else {
       outside_points[n_outside_point_count++] = in_tri.vertices_tri[1];
-      outside_texs[n_outside_tex_count++] = in_tri.texter_tri[1];
     }
 
     if (d2 >= 0) {
       inside_points[n_inside_point_count++] = in_tri.vertices_tri[2];
-      inside_texs[n_inside_tex_count++] = in_tri.texter_tri[2];
     } else {
       outside_points[n_outside_point_count++] = in_tri.vertices_tri[2];
-      outside_texs[n_outside_tex_count++] = in_tri.texter_tri[2];
     }
 
     if (n_inside_point_count === 0) {
@@ -322,25 +311,6 @@ export class Util {
       return [
         {
           vertices_tri: [inside_points[0], p1.vector, p2.vector],
-          texter_tri: [
-            inside_texs[0],
-            {
-              u:
-                p1.t * (outside_texs[0].u - inside_texs[0].u) +
-                inside_texs[0].u,
-              v:
-                p1.t * (outside_texs[0].v - inside_texs[0].v) +
-                inside_texs[0].v,
-            },
-            {
-              u:
-                p2.t * (outside_texs[1].u - inside_texs[0].u) +
-                inside_texs[0].u,
-              v:
-                p2.t * (outside_texs[1].v - inside_texs[0].v) +
-                inside_texs[0].v,
-            },
-          ],
         },
       ];
     }
@@ -364,40 +334,9 @@ export class Util {
       return [
         {
           vertices_tri: [inside_points[0], inside_points[1], p1.vector],
-          texter_tri: [
-            inside_texs[0],
-            inside_texs[1],
-            {
-              u:
-                p1.t * (outside_texs[0].u - inside_texs[0].u) +
-                inside_texs[0].u,
-              v:
-                p1.t * (outside_texs[0].v - inside_texs[0].v) +
-                inside_texs[0].v,
-            },
-          ],
         },
         {
           vertices_tri: [inside_points[1], p1.vector, p2.vector],
-          texter_tri: [
-            inside_texs[1],
-            {
-              u:
-                p1.t * (outside_texs[0].u - inside_texs[0].u) +
-                inside_texs[0].u,
-              v:
-                p1.t * (outside_texs[0].v - inside_texs[0].v) +
-                inside_texs[0].v,
-            },
-            {
-              u:
-                p2.t * (outside_texs[0].u - inside_texs[1].u) +
-                inside_texs[1].u,
-              v:
-                p2.t * (outside_texs[0].v - inside_texs[1].v) +
-                inside_texs[1].v,
-            },
-          ],
         },
       ];
     }

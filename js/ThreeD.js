@@ -20,10 +20,12 @@ export class ThreeD {
 
   mesh_cube = [];
 
-  draw_faces = false;
+  draw_faces = true;
   draw_stroke = false;
 
   size = 7;
+
+  color = '#000926';
 
   setSize(s) {
     this.size += s;
@@ -91,7 +93,6 @@ export class ThreeD {
       // Offset into the screen
       let tri_translated = {};
       tri_translated.vertices_tri = Util.scale_matix(tri_rotation_y, this.size);
-      tri_translated.texter_tri = mesh.texter_tri;
 
       let line1 = Util.vector_sub(
         tri_translated.vertices_tri[1],
@@ -115,14 +116,11 @@ export class ThreeD {
 
         let dp = Util.dot_product(normal, light_direction);
 
-        let color = PolygonHelper.lighten('#00917e', -dp);
-
         tri_viewed = {};
         tri_viewed.vertices_tri = Util.multiply_matrixs(
           tri_translated.vertices_tri,
           mat_view
         );
-        tri_viewed.texter_tri = tri_translated.texter_tri;
 
         let clipped = Util.triangle_clip_against_plane(
           { x: 0, y: 0, z: 0.1 },
@@ -137,7 +135,6 @@ export class ThreeD {
             tri.vertices_tri,
             this.matProj()
           );
-          tri_projected.texter_tri = tri.texter_tri;
 
           for (let i = 0; i < 3; i++) {
             tri_projected.vertices_tri[i] = Util.vector_divide(
@@ -156,7 +153,10 @@ export class ThreeD {
             tri_projected.vertices_tri[i].y *= 0.5 * canvas.height;
           }
 
-          vec_triangles_to_raster.push({ tri: tri_projected, color });
+          vec_triangles_to_raster.push({
+            tri: tri_projected,
+            alpha: Math.abs(dp),
+          });
         }
       }
     }
@@ -222,42 +222,19 @@ export class ThreeD {
           }
 
           for (let tri_to_add of tri_to_adds) {
-            list_triangles.push({ tri: tri_to_add, color: triangle.color });
+            list_triangles.push({
+              tri: tri_to_add,
+              alpha: triangle.alpha,
+            });
           }
         }
         n_new_triangles = list_triangles.length;
       }
 
       for (let tri of list_triangles) {
-        // let image_src = new Image();
-        // image_src.src = '../js/mario.png';
-
-        // c.drawImage(
-        //   image_src,
-        //   tri.tri.vertices_tri[0].x,
-        //   tri.tri.vertices_tri[0].y,
-        //   w,
-        //   h
-        // );
-
-        PolygonHelper.texterd_triangle(
-          tri.tri.vertices_tri[0].x,
-          tri.tri.vertices_tri[0].y,
-          tri.tri.texter_tri[0].u,
-          tri.tri.texter_tri[0].v,
-          tri.tri.vertices_tri[1].x,
-          tri.tri.vertices_tri[1].y,
-          tri.tri.texter_tri[1].u,
-          tri.tri.texter_tri[1].v,
-          tri.tri.vertices_tri[2].x,
-          tri.tri.vertices_tri[2].y,
-          tri.tri.texter_tri[2].u,
-          tri.tri.texter_tri[2].v
-        );
-
         PolygonHelper.draw_triangle({
           tri_vectors: tri.tri.vertices_tri,
-          color: tri.color,
+          color: PolygonHelper.lighten(this.color, tri.alpha),
           fill: this.draw_faces,
           stroke: this.draw_stroke,
         });

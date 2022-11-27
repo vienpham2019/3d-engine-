@@ -1,4 +1,4 @@
-import { c } from './main.js';
+import { c, canvas } from './main.js';
 import { Util } from './Util.js';
 
 export class PolygonHelper {
@@ -7,7 +7,6 @@ export class PolygonHelper {
     let triangles = [];
     let triangle_index_count = 0;
     while (input_faces.length > 3 && count++ < 1000) {
-      // console.log(input_faces.length);
       for (let i = 0; i < input_faces.length; i++) {
         let a = input_faces[i];
         let b = Util.get_item(input_faces, i + 1);
@@ -58,22 +57,21 @@ export class PolygonHelper {
   }
 
   static draw_triangle({ tri_vectors, color, fill = false, stroke = true }) {
-    tri_vectors.push(tri_vectors[0]);
     c.beginPath();
     c.moveTo(tri_vectors[0].x, tri_vectors[0].y);
+    c.lineTo(tri_vectors[1].x, tri_vectors[1].y);
+    c.lineTo(tri_vectors[2].x, tri_vectors[2].y);
+    c.lineTo(tri_vectors[0].x, tri_vectors[0].y);
 
-    for (let vector of tri_vectors) {
-      c.lineTo(vector.x, vector.y);
-    }
+    c.strokeStyle = color;
+    c.fillStyle = color;
 
-    if (fill && !stroke) c.strokeStyle = color;
-    else if (fill && stroke) c.strokeStyle = 'black';
-    else c.strokeStyle = 'white';
-    c.stroke();
-    if (fill) {
-      c.fillStyle = color;
+    if (fill && !stroke) {
       c.fill();
-    }
+    } else if (fill && stroke) c.strokeStyle = '#000000';
+    else c.strokeStyle = '#FFFFFF';
+
+    c.stroke();
   }
 
   static hex_to_rgb(hex) {
@@ -121,141 +119,5 @@ export class PolygonHelper {
       newColor += ('00' + c).substr(c.length);
     }
     return newColor;
-  }
-
-  static texterd_triangle(x1, y1, u1, v1, x2, y2, u2, v2, x3, y3, u3, v3, tex) {
-    if (y2 < y1) {
-      [y1, y2] = Util.swap(y1, y2);
-      [x1, x2] = Util.swap(x1, x2);
-      [u1, u2] = Util.swap(u1, u2);
-      [u1, u2] = Util.swap(v1, v2);
-    }
-
-    if (y3 < y1) {
-      [y1, y3] = Util.swap(y1, y3);
-      [x1, x3] = Util.swap(x1, x3);
-      [u1, u3] = Util.swap(u1, u3);
-      [v1, v3] = Util.swap(v1, v3);
-    }
-
-    if (y3 < y2) {
-      [y2, y3] = Util.swap(y2, y3);
-      [x2, x3] = Util.swap(x2, x3);
-      [u2, u3] = Util.swap(u2, u3);
-      [v2, v3] = Util.swap(v2, v3);
-    }
-
-    let dy1 = y2 - y1;
-    let dx1 = x2 - x1;
-    let du1 = u2 - u1;
-    let dv1 = v2 - v1;
-
-    let dy2 = y3 - y1;
-    let dx2 = x3 - x1;
-    let du2 = u3 - u1;
-    let dv2 = v3 - v1;
-
-    let dax_step = 0,
-      dbx_step = 0,
-      du1_step = 0,
-      dv1_step = 0,
-      du2_step = 0,
-      dv2_step = 0;
-
-    let tex_u, tex_v;
-
-    if (!!dy1) dax_step = dx1 / Math.abs(dy1);
-    if (!!dy2) dbx_step = dx2 / Math.abs(dy2);
-
-    if (!!dy1) du1_step = du1 / Math.abs(dy1);
-    if (!!dy1) dv1_step = dv1 / Math.abs(dy1);
-
-    if (!!dy2) du2_step = du2 / Math.abs(dy2);
-    if (!!dy2) dv2_step = dv2 / Math.abs(dy2);
-
-    if (!!dy1) {
-      for (let i = y1; i <= y2; i++) {
-        let ax = x1 + (i - y1) * dax_step;
-        let bx = x1 + (i - y1) * dbx_step;
-
-        let tex_su = u1 + (i - y1) * du1_step;
-        let tex_sv = v1 + (i - y1) * dv1_step;
-
-        let tex_eu = u1 + (i - y1) * du2_step;
-        let tex_ev = v1 + (i - y1) * dv2_step;
-
-        if (ax > bx) {
-          [ax, bx] = Util.swap(ax, bx);
-          [tex_su, tex_eu] = Util.swap(tex_su, tex_eu);
-          [tex_sv, tex_ev] = Util.swap(tex_sv, tex_ev);
-        }
-
-        // set to start location u,v for texture
-        tex_u = tex_su;
-        tex_v = tex_sv;
-
-        // scan line
-        let tstep = 1 / (bx - ax);
-        let t = 0;
-        let count = 255;
-        for (let j = ax; j < bx; j++) {
-          tex_u = (1 - t) * tex_su + t * tex_eu;
-          tex_v = (1 - t) * tex_sv + t * tex_ev;
-
-          c.fillStyle = this.rgb_to_hex(50, 168, count--);
-          c.fillRect(Math.floor(j), Math.floor(i), 1, 1);
-
-          t += tstep;
-        }
-      }
-
-      dy1 = y3 - y2;
-      dx1 = x3 - x2;
-      dv1 = v3 - v2;
-      du1 = u3 - u2;
-
-      if (!!dy1) dax_step = dx1 / Math.abs(dy1);
-      if (!!dy2) dbx_step = dx2 / Math.abs(dy2);
-
-      du1_step = 0;
-      dv1_step = 0;
-      if (!!dy1) du1_step = du1 / Math.abs(dy1);
-      if (!!dy1) dv1_step = dv1 / Math.abs(dy1);
-
-      for (let i = y2; i <= y3; i++) {
-        let ax = x2 + (i - y2) * dax_step;
-        let bx = x1 + (i - y1) * dbx_step;
-
-        let tex_su = u2 + (i - y2) * du1_step;
-        let tex_sv = v2 + (i - y2) * dv1_step;
-
-        let tex_eu = u1 + (i - y1) * du2_step;
-        let tex_ev = v1 + (i - y1) * dv2_step;
-
-        if (ax > bx) {
-          [ax, bx] = Util.swap(ax, bx);
-          [tex_su, tex_eu] = Util.swap(tex_su, tex_eu);
-          [tex_sv, tex_ev] = Util.swap(tex_sv, tex_ev);
-        }
-
-        // set to start location u,v for texture
-        tex_u = tex_su;
-        tex_v = tex_sv;
-
-        // scan line
-        let tstep = 1 / (bx - ax);
-        let t = 0;
-        let count = 255;
-        for (let j = ax; j < bx; j++) {
-          tex_u = (1 - t) * tex_su + t * tex_eu;
-          tex_v = (1 - t) * tex_sv + t * tex_ev;
-
-          c.fillStyle = this.rgb_to_hex(50, 168, count--);
-          c.fillRect(Math.floor(j), Math.floor(i), 1, 1);
-
-          t += tstep;
-        }
-      }
-    }
   }
 }

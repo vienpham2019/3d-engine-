@@ -9,17 +9,7 @@ export const c = canvas.getContext('2d');
 canvas.width = 1424;
 canvas.height = 776;
 
-const delay = 200;
-
-c.fillRect(0, 0, canvas.width, canvas.height);
-
-let obj_3d = new Rectangle();
-// let obj_3d = new Triangle(200, c, [70, 90, 20]);
-
-// matix 3d to 2d
-// [1 0 0]    [x]
-// [0 1 0] *  [y] = [x,y]  => x = (1 * x) + (0 * y) + (0 * z)
-//            [Z]             y = (0 * x) + (1 * y) + (0 * z)
+let obj_3d = new Triangle();
 
 let rotateX = true;
 let rotateY = true;
@@ -31,21 +21,7 @@ var fps;
 function animate() {
   c.fillStyle = 'black';
   c.fillRect(0, 0, canvas.width, canvas.height);
-
-  // let imageData = c.createImageData(1, 1);
-
-  // for (let i = 0; i < imageData.data.length; i += 4) {
-  //   // Percentage in the x direction, times 255
-  //   let x = ((i % 400) / 400) * 255;
-  //   // Percentage in the y direction, times 255
-  //   let y = (Math.ceil(i / 400) / 100) * 255;
-
-  //   // Modify pixel data
-  //   imageData.data[i + 0] = x; // R value
-  //   imageData.data[i + 1] = y; // G value
-  //   imageData.data[i + 2] = 255 - x; // B value
-  //   imageData.data[i + 3] = 255; // A value
-  // }
+  window.requestAnimationFrame(animate);
 
   if (obj_3d != null) {
     if (rotateX) obj_3d.set_rotation_angle((a) => (a.x += 0.008));
@@ -54,14 +30,6 @@ function animate() {
 
     obj_3d.draw();
   }
-
-  // if (!lastCalledTime) {
-  //   lastCalledTime = Date.now();
-  //   fps = 0;
-  //   return;
-  // }
-
-  window.requestAnimationFrame(animate);
 
   let delta = (Date.now() - lastCalledTime) / 1000;
   lastCalledTime = Date.now();
