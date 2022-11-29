@@ -1,7 +1,7 @@
 export class Util {
-  static conver_degrees_to_pi(deg) {
-    return ((deg * 0.5) / 180) * Math.PI;
-  }
+  static conver_degrees_to_pi = (deg) => ((deg * 0.5) / 180) * Math.PI;
+
+  static degrees_to_radians = (deg) => (deg * Math.PI) / 180.0;
 
   static swap(a, b) {
     let temp = a;

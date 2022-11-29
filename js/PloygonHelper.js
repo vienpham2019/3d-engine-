@@ -40,6 +40,32 @@ export class PolygonHelper {
     return triangles;
   }
 
+  static generate_polygon(np = 3) {
+    if (np < 3) np = 3;
+    else if (np > 100) np = 100;
+    else np = np;
+
+    let angle = (2 * Math.PI) / np;
+    let pyShift = Math.PI / 2;
+    let radius = 1;
+
+    let polygon_vertices = [{ x: radius, y: 0, z: -1 }];
+    let polygon_faces = [];
+
+    for (let m = 0; m <= np; m++) {
+      let newAngle = m * angle + pyShift;
+      let x_val = radius * Math.cos(newAngle);
+      let y_val = radius * Math.sin(newAngle);
+      polygon_vertices.push({ x: x_val + radius, y: y_val, z: 0 });
+      polygon_faces.push(m);
+    }
+
+    return {
+      polygon_vertices,
+      polygon_faces,
+    };
+  }
+
   static is_point_in_triangle(p, a, b, c) {
     let ab = Util.vector_sub(b, a);
     let bc = Util.vector_sub(c, b);
@@ -66,10 +92,10 @@ export class PolygonHelper {
     c.strokeStyle = color;
     c.fillStyle = color;
 
-    if (fill && !stroke) {
+    if (fill) {
       c.fill();
-    } else if (fill && stroke) c.strokeStyle = '#000000';
-    else c.strokeStyle = '#FFFFFF';
+    }
+    if (stroke || !fill) c.strokeStyle = 'black';
 
     c.stroke();
   }

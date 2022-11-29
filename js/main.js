@@ -1,6 +1,6 @@
 import { OBJ3D } from './OBJ3D.js';
 import { Rectangle } from './Rectangle.js';
-import { Triangle } from './Triangle.js';
+import { TriangularPyramid } from './TriangularPyramid.js';
 import { Util } from './Util.js';
 
 export const canvas = document.querySelector('#canvas');
@@ -9,7 +9,7 @@ export const c = canvas.getContext('2d');
 canvas.width = 1424;
 canvas.height = 776;
 
-let obj_3d = new Triangle();
+let obj_3d = new TriangularPyramid(10);
 
 let rotateX = true;
 let rotateY = true;
@@ -19,7 +19,7 @@ var lastCalledTime;
 var fps;
 
 function animate() {
-  c.fillStyle = 'black';
+  c.fillStyle = '#5c5c5c';
   c.fillRect(0, 0, canvas.width, canvas.height);
   window.requestAnimationFrame(animate);
 

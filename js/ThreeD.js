@@ -10,7 +10,7 @@ export class ThreeD {
   fFovRad = 1 / Math.tan(Util.conver_degrees_to_pi(this.fFov));
 
   fTheta = { x: 0, y: 0, z: 0 };
-  v_camera = { x: 0, y: 0, z: 0 };
+  v_camera = { x: 0, y: 0, z: 1 };
   v_look_dir = { x: 0, y: 0, z: 1 };
 
   fYaw = 0;
@@ -25,7 +25,7 @@ export class ThreeD {
 
   size = 7;
 
-  color = '#000926';
+  color = '#08004f';
 
   setSize(s) {
     this.size += s;
