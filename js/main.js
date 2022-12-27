@@ -11,9 +11,9 @@ canvas.height = 776;
 
 let obj_3d = new TriangularPyramid(10);
 
-let rotateX = true;
-let rotateY = true;
-let rotateZ = true;
+let rotateX = false;
+let rotateY = false;
+let rotateZ = false;
 
 var lastCalledTime;
 var fps;
@@ -85,6 +85,16 @@ window.addEventListener('keydown', (e) => {
       break;
     case 'd':
       obj_3d.fYaw -= 0.2;
+      break;
+
+    case 'x':
+      rotateX = !rotateX;
+      break;
+    case 'y':
+      rotateY = !rotateY;
+      break;
+    case 'z':
+      rotateZ = !rotateZ;
       break;
 
     default:
